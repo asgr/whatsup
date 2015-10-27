@@ -5,6 +5,7 @@ gettelescopes=function(name){
   if(tolower(name) %in% allownames==FALSE){stop(paste('Provided name name is not allowed, must be one of',paste(as.character(telescopes[,'Ref']),sep='',collapse=', '),' (case insensitive). See ?telescopes for details.'))}
   out=telescopes[allownames==tolower(name),]
   names(out)=colnames(telescopes)
+  out=as.vector(out)
   return(out)
 }
 
@@ -48,9 +49,9 @@ jd2date=function(JD=2440000){
 whatsup=function(RA="12:30:16", Dec="-30:13:15", Date='get', Time=c(12,0,0), lon=115.8178, lat=-31.97333, UTCdiff=8, altitude=10, pressure=1000, temp=20, step=0.5){
   if(is.character(lon)){
     obs=gettelescopes(lon)
-    lon=obs['lon']
-    lat=obs['lat']
-    altitude=obs['Height']
+    lon=as.numeric(obs['Lon'])
+    lat=as.numeric(obs['Lat'])
+    altitude=as.numeric(obs['Height'])
   }
   RAdeg=hms2deg(RA)
   Decdeg=dms2deg(Dec)

@@ -2,9 +2,20 @@ gettelescopes=function(name){
   telescopes = NULL
   data('telescopes',envir = environment())
   allownames=tolower(as.character(telescopes[,'Name']))
-  if(tolower(name) %in% allownames==FALSE){stop(paste('Provided name name is not allowed, must be one of',paste(as.character(telescopes[,'Ref']),sep='',collapse=', '),' (case insensitive). See ?telescopes for details.'))}
+  if(tolower(name) %in% allownames==FALSE){stop(paste('Provided telescope name is not allowed, must be one of',paste(as.character(telescopes[,'Ref']),sep='',collapse=', '),' (case insensitive). See ?telescopes for details.'))}
   out=telescopes[allownames==tolower(name),]
   names(out)=colnames(telescopes)
+  out=as.vector(out)
+  return(out)
+}
+
+gettarget=function(name){
+  telescopes = NULL
+  data('galaxies',envir = environment())
+  allownames=tolower(as.character(galaxies[,'Name']))
+  if(tolower(name) %in% allownames==FALSE){stop('Provided target name is not allowed.')}
+  out=galaxies[allownames==tolower(name),]
+  names(out)=colnames(galaxies)
   out=as.vector(out)
   return(out)
 }
@@ -46,18 +57,22 @@ jd2date=function(JD=2440000){
     return(list(year=year, mon=mon, mday=mday, hour=hour))
 }
 
-whatsup=function(RA="12:30:16", Dec="-30:13:15", Date='get', Time=c(12,0,0), lon=115.8178, lat=-31.97333, UTCdiff=8, altitude=10, pressure=1000, temp=20, step=0.5){
-  if(is.character(lon)){
-    obs=gettelescopes(lon)
-    lon=as.numeric(obs['Lon'])
-    lat=as.numeric(obs['Lat'])
-    altitude=as.numeric(obs['Height'])
+whatsup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time=c(12,0,0), Lon=115.8178, Lat=-31.97333, Loc='user', UTCdiff=8, Altitude=10, Pressure=1000, Temp=20, step=0.5){
+  if(Target != 'user'){
+    RA=as.character(gettarget(Target)[1,2])
+    Dec=as.character(gettarget(Target)[1,3])
   }
-  if(UTCdiff=='guess'){UTCdiff=round(lon/15)}
+  if(Loc != 'user'){
+    obs=gettelescopes(Loc)
+    Lon=as.numeric(obs[1,'Lon'])
+    Lat=as.numeric(obs[1,'Lat'])
+    Altitude=as.numeric(obs[1,'Height'])
+  }
+  if(UTCdiff=='guess'){UTCdiff=round(Lon/15)}
   RAdeg=hms2deg(RA)
   Decdeg=dms2deg(Dec)
-  options(longitude=lon, latitude=lat)
-  localEoT=lt()[1]-lst(lambda=lon)[1]
+  options(longitude=Lon, latitude=Lat)
+  localEoT=lt()[1]-lst(lambda=Lon)[1]
   if(Date[1]=='get'){
     datetime=as.POSIXlt(Sys.time())
     year=datetime$year+1900
@@ -88,32 +103,32 @@ whatsup=function(RA="12:30:16", Dec="-30:13:15", Date='get', Time=c(12,0,0), lon
   for(i in seq(0,1,by=step/24)){
     sink("aux")
     jd=startjd+i
-    tempout=eq2hor(RAdeg, Decdeg, jd , lat=lat, lon=lon, altitude=altitude, pres=pressure, temp=temp+273.15)
-    tempoutmoon=eq2hor(moon$ra, moon$dec, jd , lat=lat, lon=lon, altitude=altitude, pres=pressure, temp=temp+273.15)
-    tempoutsun=eq2hor(sun$ra, sun$dec, jd , lat=lat, lon=lon, altitude=altitude, pres=pressure, temp=temp+273.15)
+    Tempout=eq2hor(RAdeg, Decdeg, jd , lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15)
+    Tempoutmoon=eq2hor(moon$ra, moon$dec, jd , lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15)
+    Tempoutsun=eq2hor(sun$ra, sun$dec, jd , lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15)
     sink(NULL)
     outLT=jd2date(jd+UTCdiff/24)
-    outLST=lst(jd, lambda=lon)
+    outLST=lst(jd, lambda=Lon)
     outLTPOSIX=ISOdatetime(outLT$year, outLT$mon, outLT$mday, as.numeric(deg2hms(outLT$hour*15)[1]), as.numeric(deg2hms(outLT$hour*15)[2]), as.numeric(deg2hms(outLT$hour*15)[3]))
-    outtemp=data.frame(JD=startjd+i, LST=outLST[1], LT=outLT, LTPOSIX=outLTPOSIX, Alt=tempout$alt, Az=tempout$az, HA=tempout$ha, AirMass=airmass(tempout$alt), AltMoon=tempoutmoon$alt, AzMoon=tempoutmoon$az, HAMoon=tempoutmoon$ha, AirMassMoon=airmass(tempoutmoon$alt), AltSun=tempoutsun$alt, AzSun=tempoutsun$az, HASun=tempoutsun$ha, AirMassSun=airmass(tempoutsun$alt))
+    outTemp=data.frame(JD=startjd+i, LST=outLST[1], LT=outLT, LTPOSIX=outLTPOSIX, Alt=Tempout$alt, Az=Tempout$az, HA=Tempout$ha, AirMass=airmass(Tempout$alt), AltMoon=Tempoutmoon$alt, AzMoon=Tempoutmoon$az, HAMoon=Tempoutmoon$ha, AirMassMoon=airmass(Tempoutmoon$alt), AltSun=Tempoutsun$alt, AzSun=Tempoutsun$az, HASun=Tempoutsun$ha, AirMassSun=airmass(Tempoutsun$alt))
     r=as.POSIXct(round(range(outLTPOSIX,na.rm = TRUE), "hours"))
-    out=rbind(out,outtemp)
+    out=rbind(out,outTemp)
   }
   N=dim(out)[1]
   r=as.POSIXct(round(range(out$LTPOSIX), "hours"))
   ataxis=seq(r[1], r[2], by = "hour")
   dayline=ISOdatetime(out$LT.year[N], out$LT.mon[N], out$LT.mday[N], 0, 0, 0)
   obsGST=gst(date2jd(out$LT.year[N], out$LT.mon[N], out$LT.mday[N]))[1]
-  LSTdiff=(gst(out$JD[floor(N/2)],0)[1]+lon/15-UTCdiff)
-  tempsun1=sun.rst(jday = floor(out$JD[1]), phi = lat)
-  tempsun2=sun.rst(jday = floor(out$JD[N]), phi = lat)
-  rise1=(as.numeric(deg2hms((tempsun1[[1]][1]*15-LSTdiff*15) %% 360)))
-  rise2=(as.numeric(deg2hms((tempsun2[[1]][1]*15-LSTdiff*15) %% 360)))
-  set1=(as.numeric(deg2hms((tempsun1[[3]][1]*15-LSTdiff*15) %% 360)))
-  set2=(as.numeric(deg2hms((tempsun2[[3]][1]*15-LSTdiff*15) %% 360)))
+  LSTdiff=(gst(out$JD[floor(N/2)],0)[1]+Lon/15-UTCdiff)
+  Tempsun1=sun.rst(jday = floor(out$JD[1]), phi = Lat)
+  Tempsun2=sun.rst(jday = floor(out$JD[N]), phi = Lat)
+  rise1=(as.numeric(deg2hms((Tempsun1[[1]][1]*15-LSTdiff*15) %% 360)))
+  rise2=(as.numeric(deg2hms((Tempsun2[[1]][1]*15-LSTdiff*15) %% 360)))
+  set1=(as.numeric(deg2hms((Tempsun1[[3]][1]*15-LSTdiff*15) %% 360)))
+  set2=(as.numeric(deg2hms((Tempsun2[[3]][1]*15-LSTdiff*15) %% 360)))
   rise=c(ISOdatetime(out$LT.year[1], out$LT.mon[1], out$LT.mday[1], rise1[1], rise1[2], rise1[3]), ISOdatetime(out$LT.year[N], out$LT.mon[N], out$LT.mday[N], rise2[1], rise2[2], rise2[3]))
   set=c(ISOdatetime(out$LT.year[1], out$LT.mon[1], out$LT.mday[1], set1[1], set1[2], set1[3]), ISOdatetime(out$LT.year[N], out$LT.mon[N], out$LT.mday[N], set2[1], set2[2], set2[3]))
-  out=list(obs=out, UTCdiff=UTCdiff, RA=RA, Dec=Dec, RAdeg=RAdeg, Decdeg=Decdeg, lon=lon, lat=lat, altitude=altitude, pressure=pressure, temp=temp, at=ataxis, dayline=dayline, rise=rise, set=set, moonsep=moonsep, moonphase=moonphase, sunsep=sunsep)
+  out=list(obs=out, UTCdiff=UTCdiff, RA=RA, Dec=Dec, RAdeg=RAdeg, Decdeg=Decdeg, Lon=Lon, Lat=Lat, Altitude=Altitude, Pressure=Pressure, Temp=Temp, at=ataxis, dayline=dayline, rise=rise, set=set, moonsep=moonsep, moonphase=moonphase, sunsep=sunsep)
   class(out)='whatsup'
   return=out
 }
@@ -150,7 +165,7 @@ plotwhatsup=function(obsdata, ytype='Alt'){
     abline(h=c(2,1.15,1), lty=c(3,3,1))
   }
 
-  title(main=paste('Y', obsdata$obs$LT.year[1], 'M', obsdata$obs$LT.mon[1], 'D', obsdata$obs$LT.mday[1], ', RA ', round(obsdata$RAdeg),', Dec ', round(obsdata$Decdeg), ', Lon ', round(obsdata$lon), ', Lat ', round(obsdata$lat),', Mphase ',round(obsdata$moonphase,2),', Msep ', round(obsdata$moonsep), ', Ssep ', round(obsdata$sunsep),sep=''), outer=TRUE)
+  title(main=paste('Y', obsdata$obs$LT.year[1], 'M', obsdata$obs$LT.mon[1], 'D', obsdata$obs$LT.mday[1], ', RA ', round(obsdata$RAdeg),', Dec ', round(obsdata$Decdeg), ', Lon ', round(obsdata$Lon), ', Lat ', round(obsdata$Lat),', Mphase ',round(obsdata$moonphase,2),', Msep ', round(obsdata$moonsep), ', Ssep ', round(obsdata$sunsep),sep=''), outer=TRUE)
 
   magplot(obsdata$obs$LTPOSIX, obsdata$obs$Az, xaxt='n', type='l', xlab='Local Time from Now', ylab='Az (0N90E180S270W) / deg',ylim=c(min(obsdata$obs$Az),max(obsdata$obs$Az)+diff(range(obsdata$obs$Az))*0.2))
   axis.POSIXct(1, obsdata$at, obsdata$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))

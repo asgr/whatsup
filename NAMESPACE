@@ -1,1 +1,5 @@
 exportPattern("^[[:alpha:]]+")
+import("astrolibR")
+import("moonsun")
+import("magicaxis")
+import("celestial")

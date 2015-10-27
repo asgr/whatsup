@@ -53,6 +53,7 @@ whatsup=function(RA="12:30:16", Dec="-30:13:15", Date='get', Time=c(12,0,0), lon
     lat=as.numeric(obs['Lat'])
     altitude=as.numeric(obs['Height'])
   }
+  if(UTCdiff=='guess'){UTCdiff=round(lon/15)}
   RAdeg=hms2deg(RA)
   Decdeg=dms2deg(Dec)
   options(longitude=lon, latitude=lat)

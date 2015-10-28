@@ -154,7 +154,7 @@ plotwhatsup=function(obsdata, ytype='Alt',moonphase=TRUE){
     abline(v=obsdata$rise, lty=2, col='orange')
     abline(v=obsdata$set, lty=2, col='orange')
     abline(v=obsdata$obs$LTPOSIX[which.max(obsdata$obs$Alt)], lty=3, col='blue')
-    abline(h=c(0,10,20,30,40,50,60,70,80,90), lty=c(1,3,3,2,3,3,2,3,3,1), col='grey')
+    abline(h=c(-10,0,10,20,30,40,50,60,70,80,90), lty=c(3,1,3,3,2,3,3,2,3,3,1), col='grey')
   }
   if(ytype=='AM'){
     magplot(obsdata$obs$LTPOSIX, obsdata$obs$AirMass, xaxt='n', type='l', ylim=c(3,1), xlab='', ylab='Air Mass', tcl=0.5, mgp=c(2,0.5,0),col='blue')

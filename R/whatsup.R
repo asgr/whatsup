@@ -11,7 +11,7 @@ gettelescope=function(name){
 
 gettarget=function(name){
   targets = NULL
-  data('target',envir = environment())
+  data('targets',envir = environment())
   allownames=tolower(as.character(targets[,'Name']))
   if(tolower(name) %in% allownames==FALSE){stop('Provided target name is not allowed.')}
   out=targets[allownames==tolower(name),]

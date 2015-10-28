@@ -171,10 +171,12 @@ plotwhatsup=function(obsdata, ytype='Alt',moonphase=TRUE){
 
   title(main=paste('Y', obsdata$obs$LT.year[1], 'M', obsdata$obs$LT.mon[1], 'D', obsdata$obs$LT.mday[1], ', RA ', round(obsdata$RAdeg),', Dec ', round(obsdata$Decdeg), ', Lon ', round(obsdata$Lon), ', Lat ', round(obsdata$Lat),', Mphase ',round(obsdata$moonphase,2),', Msep ', round(obsdata$moonsep), ', Ssep ', round(obsdata$sunsep),sep=''), outer=TRUE)
 
-  magplot(obsdata$obs$LTPOSIX, obsdata$obs$Az, xaxt='n', type='l', xlab='Local Time from Now', ylab='Az (0N90E180S270W) / deg',ylim=c(0,380), col='blue', prettybase=90)
+  magplot(obsdata$obs$LTPOSIX, obsdata$obs$Az, xaxt='n', yaxt='n', type='l', xlab='Local Time from Now', ylab='Az / deg', ylim=c(0,380), col='blue')
   lines(obsdata$obs$LTPOSIX, obsdata$obs$AzMoon, col=mooncol)
   lines(obsdata$obs$LTPOSIX, obsdata$obs$AzSun, col='orange')
   axis.POSIXct(1, obsdata$at, obsdata$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))
+  magaxis(2,prettybase=90,labels=FALSE)
+  axis(2, at=c(0,90,180,270,360), labels=c('0N','90E','180S','270W','360N'), tick=FALSE, tcl=0.5, mgp=c(2,0.5,0))
   abline(v=obsdata$dayline+c(-24,-12,0,12,24)*3600, lty=2, col='grey')
   abline(v=obsdata$dayline+c(-23,-22,-21,-20,-19,-18,-17,-16,-15,-14,-13,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23)*3600, lty=3, col='grey')
   abline(v=obsdata$rise, lty=2, col='orange')

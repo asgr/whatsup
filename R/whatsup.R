@@ -149,22 +149,24 @@ plotwhatsup=function(obsdata, ytype='Alt',moonphase=TRUE){
     lines(obsdata$obs$LTPOSIX, obsdata$obs$AltMoon, col=mooncol)
     lines(obsdata$obs$LTPOSIX, obsdata$obs$AltSun, col='orange')
     axis.POSIXct(1, obsdata$at, obsdata$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))
-    abline(v=obsdata$dayline, lty=3)
+    abline(v=obsdata$dayline+c(-24,-12,0,12,24)*3600, lty=2, col='grey')
+    abline(v=obsdata$dayline+c(-21,-20,-19,-18,-17,-16,-15,-14,-13,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23)*3600, lty=3, col='grey')
     abline(v=obsdata$rise, lty=2, col='orange')
     abline(v=obsdata$set, lty=2, col='orange')
     abline(v=obsdata$obs$LTPOSIX[which.max(obsdata$obs$Alt)], lty=3, col='blue')
-    abline(h=c(-15,0,30,60,90), lty=c(3,1,3,3,1))
+    abline(h=c(0,10,20,30,40,50,60,70,80,90), lty=c(1,3,3,2,3,3,2,3,3,1), col='grey')
   }
   if(ytype=='AM'){
     magplot(obsdata$obs$LTPOSIX, obsdata$obs$AirMass, xaxt='n', type='l', ylim=c(3,1), xlab='', ylab='Air Mass', tcl=0.5, mgp=c(2,0.5,0),col='blue')
     lines(obsdata$obs$LTPOSIX, obsdata$obs$AirMassMoon, col=mooncol)
     lines(obsdata$obs$LTPOSIX, obsdata$obs$AirMassSun, col='orange')
     axis.POSIXct(1, obsdata$at, obsdata$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))
-    abline(v=obsdata$dayline, lty=3)
+    abline(v=obsdata$dayline+c(-24,-12,0,12,24)*3600, lty=2, col='grey')
+    abline(v=obsdata$dayline+c(-21,-20,-19,-18,-17,-16,-15,-14,-13,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23)*3600, lty=3, col='grey')
     abline(v=obsdata$rise, lty=2, col='orange')
     abline(v=obsdata$set, lty=2, col='orange')
     abline(v=obsdata$obs$LTPOSIX[which.max(obsdata$obs$Alt)], lty=3, col='blue')
-    abline(h=c(2,1.15,1), lty=c(3,3,1))
+    abline(h=airmass(c(-10,0,10,20,30,40,50,60,70,80,90)), lty=c(3,1,3,3,2,3,3,2,3,3,1), col='grey')
   }
 
   title(main=paste('Y', obsdata$obs$LT.year[1], 'M', obsdata$obs$LT.mon[1], 'D', obsdata$obs$LT.mday[1], ', RA ', round(obsdata$RAdeg),', Dec ', round(obsdata$Decdeg), ', Lon ', round(obsdata$Lon), ', Lat ', round(obsdata$Lat),', Mphase ',round(obsdata$moonphase,2),', Msep ', round(obsdata$moonsep), ', Ssep ', round(obsdata$sunsep),sep=''), outer=TRUE)
@@ -173,11 +175,12 @@ plotwhatsup=function(obsdata, ytype='Alt',moonphase=TRUE){
   lines(obsdata$obs$LTPOSIX, obsdata$obs$AzMoon, col=mooncol)
   lines(obsdata$obs$LTPOSIX, obsdata$obs$AzSun, col='orange')
   axis.POSIXct(1, obsdata$at, obsdata$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))
-  abline(v=obsdata$dayline, lty=3)
+  abline(v=obsdata$dayline+c(-24,-12,0,12,24)*3600, lty=2, col='grey')
+    abline(v=obsdata$dayline+c(-21,-20,-19,-18,-17,-16,-15,-14,-13,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23)*3600, lty=3, col='grey')
   abline(v=obsdata$rise, lty=2, col='orange')
   abline(v=obsdata$set, lty=2, col='orange')
   abline(v=obsdata$obs$LTPOSIX[which.max(obsdata$obs$Alt)], lty=3, col='blue')
-  abline(h=c(0,90,180,270,360), lty=3)
+  abline(h=c(0,30,60,90,120,150,180,210,240,270,300,330,360), lty=c(1,3,3,2,3,3,2,3,3,2,3,3,1), col='grey')
   legend('bottomright', legend=c('Target',' Sun', 'Moon'), col=c('blue','orange',mooncol),lty=1)
 
 }

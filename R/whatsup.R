@@ -187,7 +187,7 @@ plotwhatsup=function(obsdata, ytype='Alt',moonphase=TRUE){
   if(sunselect==length(obsdata$obs$AzSun)-1){sunselect=sunselect-1}
   highselectsun=(sunselect+1):(length(obsdata$obs$AzSun)-1)
 
-  magplot(obsdata$obs$LTPOSIX, obsdata$obs$Az, xaxt='n', yaxt='n', type='n', xlab='Local Time from Now', ylab='Az / deg', ylim=c(0,380), col='blue')
+  magplot(obsdata$obs$LTPOSIX, obsdata$obs$Az, xaxt='n', yaxt='n', type='n', xlab='Local Time / Hours', ylab='Az / deg', ylim=c(0,380), col='blue')
   lines(obsdata$obs$LTPOSIX[lowselect], obsdata$obs$Az[lowselect], col='blue')
   lines(obsdata$obs$LTPOSIX[lowselectmoon], obsdata$obs$AzMoon[lowselectmoon], col=mooncol)
   lines(obsdata$obs$LTPOSIX[lowselectsun], obsdata$obs$AzSun[lowselectsun], col='orange')

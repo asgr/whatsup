@@ -57,7 +57,7 @@ jd2date=function(JD=2440000){
     return(list(year=year, mon=mon, mday=mday, hour=hour))
 }
 
-whatsup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time=c(12,0,0), Lon=115.8178, Lat=-31.97333, Loc='user', UTCdiff=8, Altitude=10, Pressure=1000, Temp=20, step=0.5){
+whatsup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time=c(12,0,0), Lon=115.8178, Lat=-31.97333, Loc='user', UTCdiff=8, Altitude=10, Pressure=1000, Temp=20, step=0.1){
   if(Target != 'user'){
     RA=as.character(gettarget(Target)[1,2])
     Dec=as.character(gettarget(Target)[1,3])
@@ -138,13 +138,14 @@ plot.whatsup=function(x,...){
   plotwhatsup(x,...)
 }
 
-plotwhatsup=function(obsdata, ytype='Alt'){
+plotwhatsup=function(obsdata, ytype='Alt',moonphase=TRUE){
   layout(rbind(1,2))
   par(mar=c(0,0,0,0))
   par(oma=c(3.1,3.1,3.1,2.1))
+  if(moonphase){mooncol=hsv(v=0, s=0, alpha=obsdata$moonphase)}else{mooncol='darkgrey'}
   if(ytype=='Alt'){
-    magplot(obsdata$obs$LTPOSIX, obsdata$obs$Alt, xaxt='n', type='l', ylim=c(-30,90), xlab='', ylab='Alt / deg', tcl=0.5, mgp=c(2,0.5,0))
-    lines(obsdata$obs$LTPOSIX, obsdata$obs$AltMoon, col='grey')
+    magplot(obsdata$obs$LTPOSIX, obsdata$obs$Alt, xaxt='n', type='l', ylim=c(-10,90), xlab='', ylab='Alt / deg', tcl=0.5, mgp=c(2,0.5,0), col='blue', prettybase=30)
+    lines(obsdata$obs$LTPOSIX, obsdata$obs$AltMoon, col=mooncol)
     lines(obsdata$obs$LTPOSIX, obsdata$obs$AltSun, col='orange')
     axis.POSIXct(1, obsdata$at, obsdata$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))
     abline(v=obsdata$dayline, lty=1)
@@ -154,11 +155,11 @@ plotwhatsup=function(obsdata, ytype='Alt'){
     abline(h=c(-15,0,30,60,90), lty=c(3,1,3,3,1))
   }
   if(ytype=='AM'){
-    magplot(obsdata$obs$LTPOSIX, obsdata$obs$AirMass, xaxt='n', type='l', ylim=c(3,1), xlab='', ylab='Air Mass', tcl=0.5, mgp=c(2,0.5,0))
-    lines(obsdata$obs$LTPOSIX, obsdata$obs$AirMassMoon, col='grey')
+    magplot(obsdata$obs$LTPOSIX, obsdata$obs$AirMass, xaxt='n', type='l', ylim=c(3,1), xlab='', ylab='Air Mass', tcl=0.5, mgp=c(2,0.5,0),col='blue')
+    lines(obsdata$obs$LTPOSIX, obsdata$obs$AirMassMoon, col=mooncol)
     lines(obsdata$obs$LTPOSIX, obsdata$obs$AirMassSun, col='orange')
     axis.POSIXct(1, obsdata$at, obsdata$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))
-    abline(v=obsdata$dayline, lty=1)
+    abline(v=obsdata$dayline, lty=3)
     abline(v=obsdata$rise, lty=2, col='orange')
     abline(v=obsdata$set, lty=2, col='orange')
     abline(v=obsdata$obs$LTPOSIX[which.max(obsdata$obs$Alt)], lty=3, col='blue')
@@ -167,11 +168,15 @@ plotwhatsup=function(obsdata, ytype='Alt'){
 
   title(main=paste('Y', obsdata$obs$LT.year[1], 'M', obsdata$obs$LT.mon[1], 'D', obsdata$obs$LT.mday[1], ', RA ', round(obsdata$RAdeg),', Dec ', round(obsdata$Decdeg), ', Lon ', round(obsdata$Lon), ', Lat ', round(obsdata$Lat),', Mphase ',round(obsdata$moonphase,2),', Msep ', round(obsdata$moonsep), ', Ssep ', round(obsdata$sunsep),sep=''), outer=TRUE)
 
-  magplot(obsdata$obs$LTPOSIX, obsdata$obs$Az, xaxt='n', type='l', xlab='Local Time from Now', ylab='Az (0N90E180S270W) / deg',ylim=c(min(obsdata$obs$Az),max(obsdata$obs$Az)+diff(range(obsdata$obs$Az))*0.2))
+  magplot(obsdata$obs$LTPOSIX, obsdata$obs$Az, xaxt='n', type='l', xlab='Local Time from Now', ylab='Az (0N90E180S270W) / deg',ylim=c(0,380), col='blue', prettybase=90)
+  lines(obsdata$obs$LTPOSIX, obsdata$obs$AzMoon, col=mooncol)
+  lines(obsdata$obs$LTPOSIX, obsdata$obs$AzSun, col='orange')
   axis.POSIXct(1, obsdata$at, obsdata$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))
   abline(v=obsdata$dayline, lty=1)
   abline(v=obsdata$rise, lty=2, col='orange')
   abline(v=obsdata$set, lty=2, col='orange')
   abline(v=obsdata$obs$LTPOSIX[which.max(obsdata$obs$Alt)], lty=3, col='blue')
-  abline(h=c(0,90,180,270), lty=2)
+  abline(h=c(0,90,180,270,360), lty=3)
+  legend('bottomright', legend=c('Target',' Sun', 'Moon'), col=c('blue','orange',mooncol),lty=1)
+
 }

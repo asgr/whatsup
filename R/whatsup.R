@@ -58,6 +58,7 @@ jd2date=function(JD=2440000){
 }
 
 whatsup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time=c(12,0,0), Lon=115.8178, Lat=-31.97333, Loc='user', UTCdiff=8, Altitude=10, Pressure=1000, Temp=20, step=0.1){
+  print('hi')
   if(Target != 'user'){
     RA=as.character(gettarget(Target)[1,2])
     Dec=as.character(gettarget(Target)[1,3])

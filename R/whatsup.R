@@ -1,4 +1,4 @@
-gettelescopes=function(name){
+gettelescope=function(name){
   telescopes = NULL
   data('telescopes',envir = environment())
   allownames=tolower(as.character(telescopes[,'Name']))
@@ -10,12 +10,12 @@ gettelescopes=function(name){
 }
 
 gettarget=function(name){
-  telescopes = NULL
-  data('galaxies',envir = environment())
-  allownames=tolower(as.character(galaxies[,'Name']))
+  targets = NULL
+  data('target',envir = environment())
+  allownames=tolower(as.character(targets[,'Name']))
   if(tolower(name) %in% allownames==FALSE){stop('Provided target name is not allowed.')}
-  out=galaxies[allownames==tolower(name),]
-  names(out)=colnames(galaxies)
+  out=targets[allownames==tolower(name),]
+  names(out)=colnames(targets)
   out=as.vector(out)
   return(out)
 }
@@ -63,7 +63,7 @@ whatsup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time
     Dec=as.character(gettarget(Target)[1,3])
   }
   if(Loc != 'user'){
-    obs=gettelescopes(Loc)
+    obs=gettelescope(Loc)
     Lon=as.numeric(obs[1,'Lon'])
     Lat=as.numeric(obs[1,'Lat'])
     Altitude=as.numeric(obs[1,'Height'])

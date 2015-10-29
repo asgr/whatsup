@@ -173,30 +173,25 @@ plotwhatsup=function(obsdata, ytype='Alt',moonphase=TRUE){
 
   title(main=paste('Y', obsdata$obs$LT.year[1], 'M', obsdata$obs$LT.mon[1], 'D', obsdata$obs$LT.mday[1], ', RA ', round(obsdata$RAdeg),', Dec ', round(obsdata$Decdeg), ', Lon ', round(obsdata$Lon), ', Lat ', round(obsdata$Lat),', Mphase ',round(obsdata$moonphase,2),', Msep ', round(obsdata$moonsep), ', Ssep ', round(obsdata$sunsep),sep=''), outer=TRUE)
 
-  select=max(which(abs(diff(obsdata$obs$Az))>200))
-  print(select)
-  moonselect=max(which(abs(diff(obsdata$obs$AzMoon))>200))
-  sunselect=min(which(abs(diff(obsdata$obs$AzSun))>200))
-  if(length(select)==0){select=length(obsdata$obs$Az)-1}
-  if(length(moonselect)==0){moonselect=length(obsdata$obs$AzMoon)-1}
-  if(length(sunselect)==0){sunselect=length(obsdata$obs$AzSun)-1}
-  lowselect=1:select
-  if(select==length(obsdata$obs$Az-1)){select=select-1}
-  highselect=(select+1):(length(obsdata$obs$Az)-1)
-  lowselectmoon=1:moonselect
-  if(moonselect==length(obsdata$obs$AzMoon)-1){moonselect=moonselect-1}
-  highselectmoon=(moonselect+1):(length(obsdata$obs$AzMoon)-1)
-  lowselectsun=1:sunselect
-  if(sunselect==length(obsdata$obs$AzSun)-1){sunselect=sunselect-1}
-  highselectsun=(sunselect+1):(length(obsdata$obs$AzSun)-1)
-
-  magplot(obsdata$obs$LTPOSIX, obsdata$obs$Az, xaxt='n', yaxt='n', type='n', xlab='Local Time / Hours', ylab='Az / deg', ylim=c(0,380), col='blue')
-  lines(obsdata$obs$LTPOSIX[lowselect], obsdata$obs$Az[lowselect], col='blue')
-  lines(obsdata$obs$LTPOSIX[lowselectmoon], obsdata$obs$AzMoon[lowselectmoon], col=mooncol)
-  lines(obsdata$obs$LTPOSIX[lowselectsun], obsdata$obs$AzSun[lowselectsun], col='orange')
-  lines(obsdata$obs$LTPOSIX[highselect], obsdata$obs$Az[highselect], col='blue')
-  lines(obsdata$obs$LTPOSIX[highselectmoon], obsdata$obs$AzMoon[highselectmoon], col=mooncol)
-  lines(obsdata$obs$LTPOSIX[highselectsun], obsdata$obs$AzSun[highselectsun], col='orange')
+  select=which(abs(diff(obsdata$obs$Az))>200)
+  moonselect=which(abs(diff(obsdata$obs$AzMoon))>200)
+  sunselect=which(abs(diff(obsdata$obs$AzSun))>200)
+  xtarget=obsdata$obs$LTPOSIX
+  ytarget=obsdata$obs$Az
+  xmoon=obsdata$obs$LTPOSIX
+  ymoon=obsdata$obs$AzMoon
+  xsun=obsdata$obs$LTPOSIX
+  ysun=obsdata$obs$AzSun
+  xtarget[select]=NA
+  ytarget[select]=NA
+  xmoon[moonselect]=NA
+  ymoon[moonselect]=NA
+  xsun[sunselect]=NA
+  ysun[sunselect]=NA
+  magplot(xtarget, ytarget, xaxt='n', yaxt='n', type='n', xlab='Local Time / Hours', ylab='Az / deg', ylim=c(0,380), col='blue')
+  lines(xtarget, ytarget, col='blue')
+  lines(xmoon, ymoon, col=mooncol)
+  lines(xsun, ysun, col='orange')
   axis.POSIXct(1, obsdata$at, obsdata$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))
   magaxis(2,prettybase=90,labels=FALSE)
   axis(2, at=c(0,90,180,270,360), labels=c('0N','90E','180S','270W','360N'), tick=FALSE, tcl=0.5, mgp=c(2,0.5,0))

@@ -205,7 +205,13 @@ plotwhatsup=function(obsdata, ytype='Alt',moonphase=TRUE){
 
 }
 
-bestup=function(Ncut=20, Azlim=c(0,360), Altlim=c(60,90), Date='get', Time='get', Lon=115.8178, Lat=-31.97333, UTCdiff='get', Altitude=10, Pressure=1000, Temp=20, select=c('G','S')){
+bestup=function(Ncut=20, Azlim=c(0,360), Altlim=c(60,90), Date='get', Time='get', Lon=115.8178, Lat=-31.97333, Loc='user', UTCdiff='get', Altitude=10, Pressure=1000, Temp=20, select=c('G','S')){
+  if(Loc != 'user'){
+    obs=gettelescope(Loc)
+    Lon=as.numeric(obs[1,'Lon'])
+    Lat=as.numeric(obs[1,'Lat'])
+    Altitude=as.numeric(obs[1,'Height'])
+  }
   if(UTCdiff=='get'){UTCdiff=(lt()[1]-gmt()[1])}
   if(UTCdiff=='guess'){UTCdiff=round(Lon/15)}
   data('targets',envir = environment())
@@ -235,7 +241,8 @@ bestup=function(Ncut=20, Azlim=c(0,360), Altlim=c(60,90), Date='get', Time='get'
   HA=exactlst*15-cutcat$RAdeg
   HA=HA%%360
   altaz=hadec2altaz(HA, cutcat$Decdeg, lat=Lat, ws=FALSE)
-  Azsel=altaz$az>Azlim[1] & altaz$az<Azlim[2]
+  if(Azlim[1]<Azlim[2]){Azsel=altaz$az>Azlim[1] & altaz$az<Azlim[2]}
+  if(Azlim[1]>Azlim[2]){Azsel=altaz$az>Azlim[1] | altaz$az<Azlim[2]}
   Altsel=altaz$alt>Altlim[1] & altaz$alt<Altlim[2]
   cutcat=cbind(cutcat[Azsel & Altsel,], HA=HA[Azsel & Altsel]/15, Alt=altaz$alt[Azsel & Altsel], Az=altaz$az[Azsel & Altsel])
   cutcat=cutcat[order(cutcat$Alt, decreasing=TRUE),]

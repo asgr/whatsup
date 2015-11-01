@@ -275,10 +275,12 @@ yearup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Lon=1
     mday=Date[3]
   }
   startjd=date2jd(year, mon, mday, hour=12)
-  uptime={}
-  for(i in seq(0,365,by=5)){
-  tempsun=sun.rst(jday = floor(startjd)+i, phi = Lat)
-  gstlist=gst(floor(startjd)+i,hour=12,length=24*6,by=1/6) %% 24
+  jd=floor(startjd)+seq(0,365,by=5)
+  uptime30={}
+  uptime60={}
+  for(i in jd){
+  tempsun=sun.rst(jday = i, phi = Lat)
+  gstlist=gst(i,hour=12,length=24*6,by=1/6) %% 24
   HA=gstlist*15-RAdeg
   HA=HA%%360
   altaz=hadec2altaz(HA, Decdeg, lat=Lat, ws=FALSE)
@@ -288,7 +290,12 @@ yearup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Lon=1
   }
   afterset=gstlist>tempsun$set
   beforerise=gstlist<tempsun$rise
-  uptime=c(uptime, length(which(afterset & beforerise & altaz$alt>60)))
+  uptime30=c(uptime30, length(which(afterset & beforerise & altaz$alt>30)))
+  uptime60=c(uptime60, length(which(afterset & beforerise & altaz$alt>60)))
   }
-  return(uptime)
+  outdate=jd2date(jd)
+  outLTPOSIX=ISOdatetime(outdate$year, outdate$mon, outdate$mday, 12, 0, 0)
+  r=as.POSIXct(round(range(outLTPOSIX, na.rm=TRUE), "days"))
+  ataxis=seq(r[1], r[2], by = "month")
+  return(list(obs=data.frame(jd=jd, LTPOSIX=outLTPOSIX, up30=uptime30, up60=uptime60), at=ataxis))
 }

@@ -145,7 +145,7 @@ plotdayup=function(obsdata, ytype='Alt',moonphase=TRUE){
   layout(rbind(1,2))
   par(mar=c(0,0,0,0))
   par(oma=c(3.1,3.1,3.1,2.1))
-  if(moonphase){mooncol=hsv(v=0, s=0, alpha=obsdata$moonphase)}else{mooncol='darkgrey'}
+  if(moonphase){mooncol=hsv(v=0, s=0, v=1-obsdata$moonphase)}else{mooncol='darkgrey'}
   if(ytype=='Alt'){
     magplot(obsdata$obs$LTPOSIX, obsdata$obs$Alt, xaxt='n', type='l', ylim=c(-10,90), xlab='', ylab='Alt / deg', tcl=0.5, mgp=c(2,0.5,0), col='blue', prettybase=30)
     lines(obsdata$obs$LTPOSIX, obsdata$obs$AltMoon, col=mooncol)
@@ -268,16 +268,18 @@ yearup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Lon=1
     datetime=as.POSIXlt(Sys.time())
     year=datetime$year+1900
     mon=datetime$mon+1
-    mday=datetime$mday
+    mday=1
   }else{
     year=Date[1]
     mon=Date[2]
-    mday=Date[3]
+    mday=1
   }
   startjd=date2jd(year, mon, mday, hour=12)
   jd=floor(startjd)+seq(0,365,by=5)
   uptime30={}
   uptime60={}
+  moonphase={}
+  moonsep={}
   for(i in jd){
   tempsun=sun.rst(jday = i, phi = Lat)
   gstlist=gst(i,hour=12,length=24*6,by=1/6) %% 24
@@ -292,10 +294,37 @@ yearup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Lon=1
   beforerise=gstlist<tempsun$rise
   uptime30=c(uptime30, length(which(afterset & beforerise & altaz$alt>30)))
   uptime60=c(uptime60, length(which(afterset & beforerise & altaz$alt>60)))
+  moon=moonpos(i)
+  moonphase=c(moonphase, mphase(i))
+  moonsep=c(moonsep, acos(sum(sph2car(RAdeg,Decdeg)*sph2car(moon$ra, moon$dec)))*180/pi)
   }
   outdate=jd2date(jd)
   outLTPOSIX=ISOdatetime(outdate$year, outdate$mon, outdate$mday, 12, 0, 0)
   r=as.POSIXct(round(range(outLTPOSIX, na.rm=TRUE), "days"))
   ataxis=seq(r[1], r[2], by = "month")
-  return(list(obs=data.frame(jd=jd, LTPOSIX=outLTPOSIX, up30=uptime30, up60=uptime60), at=ataxis))
+  out=list(obs=data.frame(jd=jd, LTPOSIX=outLTPOSIX, up30=uptime30, up60=uptime60, moonsep=moonsep, moonphase=moonphase), at=ataxis, startyear=year)
+  class(out)='yearup'
+  return(out)
+}
+
+plotyearup=function(obsdata){
+  layout(rbind(1,2))
+  par(mar=c(0,0,0,0))
+  par(oma=c(3.1,3.1,3.1,3.1))
+  magplot(obsdata$obs$LTPOSIX, obsdata$obs$up30/6, xaxt='n', type='l', ylim=c(0,24), xlab='', ylab='Time Up / Hrs', tcl=0.5, mgp=c(2,0.5,0), col='blue', prettybase=30)
+  lines(obsdata$obs$LTPOSIX, obsdata$obs$up60/6, col='red')
+  axis.POSIXct(1, obsdata$at, obsdata$at, tcl=0.5, mgp=c(2,0.5,0))
+  lims=par()$usr
+  par(usr=c(lims[1:2],0,200))
+  moonphase=spline(obsdata$obs$LTPOSIX,obsdata$obs$moonphase)$y
+  moonphase[moonphase<0]=0
+  moonphase[moonphase>1]=1
+  magplot(spline(obsdata$obs$LTPOSIX, obsdata$obs$moonsep), xaxt='n', type='l', ylim=c(0,180), xlab=paste(obsdata$startyear,'-',obsdata$startyear+1,sep=''), ylab='Moon Sep / Deg', tcl=0.5, mgp=c(2,0.5,0), col='grey', prettybase=30)
+  points(spline(obsdata$obs$LTPOSIX, obsdata$obs$moonsep), col=hsv(h=0, s=0, v=1-moonphase), pch=16)
+  axis.POSIXct(1, obsdata$at, obsdata$at, tcl=0.5, mgp=c(2,0.5,0))
+}
+
+plot.yearup=function(x,...){
+  if(class(x)!='yearup'){stop('Object must be of type yearup')}
+  plotyearup(x,...)
 }

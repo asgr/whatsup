@@ -145,7 +145,7 @@ plotdayup=function(obsdata, ytype='Alt',moonphase=TRUE){
   layout(rbind(1,2))
   par(mar=c(0,0,0,0))
   par(oma=c(3.1,3.1,3.1,2.1))
-  if(moonphase){mooncol=hsv(v=0, s=0, v=1-obsdata$moonphase)}else{mooncol='darkgrey'}
+  if(moonphase){mooncol=hsv(h=0, s=0, v=1-obsdata$moonphase)}else{mooncol='darkgrey'}
   if(ytype=='Alt'){
     magplot(obsdata$obs$LTPOSIX, obsdata$obs$Alt, xaxt='n', type='l', ylim=c(-10,90), xlab='', ylab='Alt / deg', tcl=0.5, mgp=c(2,0.5,0), col='blue', prettybase=30)
     lines(obsdata$obs$LTPOSIX, obsdata$obs$AltMoon, col=mooncol)
@@ -302,7 +302,9 @@ yearup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Lon=1
   outLTPOSIX=ISOdatetime(outdate$year, outdate$mon, outdate$mday, 12, 0, 0)
   r=as.POSIXct(round(range(outLTPOSIX, na.rm=TRUE), "days"))
   ataxis=seq(r[1], r[2], by = "month")
-  out=list(obs=data.frame(jd=jd, LTPOSIX=outLTPOSIX, up30=uptime30, up60=uptime60, moonsep=moonsep, moonphase=moonphase), at=ataxis, startyear=year)
+  yearseq=expand.grid(c(year,year+1),1:12)
+  yearlines=ISOdatetime(yearseq[,1], yearseq[,2], 1, 12, 0, 0)
+  out=list(obs=data.frame(jd=jd, LTPOSIX=outLTPOSIX, up30=uptime30, up60=uptime60, moonsep=moonsep, moonphase=moonphase), at=ataxis, startyear=year, yearlines=yearlines)
   class(out)='yearup'
   return(out)
 }
@@ -312,6 +314,8 @@ plotyearup=function(obsdata){
   par(mar=c(0,0,0,0))
   par(oma=c(3.1,3.1,3.1,3.1))
   magplot(obsdata$obs$LTPOSIX, obsdata$obs$up30/6, xaxt='n', type='l', ylim=c(0,24), xlab='', ylab='Time Up / Hrs', tcl=0.5, mgp=c(2,0.5,0), col='blue', prettybase=30)
+  abline(v=obsdata$yearlines, lty=3, col='grey')
+  abline(h=seq(0,24,by=3), lty=c(2,3), col='grey')
   lines(obsdata$obs$LTPOSIX, obsdata$obs$up60/6, col='red')
   axis.POSIXct(1, obsdata$at, obsdata$at, tcl=0.5, mgp=c(2,0.5,0))
   lims=par()$usr
@@ -320,6 +324,8 @@ plotyearup=function(obsdata){
   moonphase[moonphase<0]=0
   moonphase[moonphase>1]=1
   magplot(spline(obsdata$obs$LTPOSIX, obsdata$obs$moonsep), xaxt='n', type='l', ylim=c(0,180), xlab=paste(obsdata$startyear,'-',obsdata$startyear+1,sep=''), ylab='Moon Sep / Deg', tcl=0.5, mgp=c(2,0.5,0), col='grey', prettybase=30)
+  abline(h=seq(0,180,by=30), lty=c(2,3), col='grey')
+  abline(v=obsdata$yearlines, lty=3, col='grey')
   points(spline(obsdata$obs$LTPOSIX, obsdata$obs$moonsep), col=hsv(h=0, s=0, v=1-moonphase), pch=16)
   axis.POSIXct(1, obsdata$at, obsdata$at, tcl=0.5, mgp=c(2,0.5,0))
 }

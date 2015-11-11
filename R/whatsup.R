@@ -101,22 +101,21 @@ dayup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time=c
   moonsep=acos(sum(sph2car(RAdeg,Decdeg)*sph2car(moon$ra, moon$dec)))*180/pi
   sunsep=acos(sum(sph2car(RAdeg,Decdeg)*sph2car(sun$ra, sun$dec)))*180/pi
   moonphase=mphase(startjd)
-  out=data.frame()
-  for(i in seq(0,1,by=step/24)){
-    sink("aux")
-    jd=startjd+i
-    Tempout=eq2hor(RAdeg, Decdeg, jd , lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15)
-    Tempoutmoon=eq2hor(moon$ra, moon$dec, jd , lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15)
-    Tempoutsun=eq2hor(sun$ra, sun$dec, jd , lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15)
-    sink(NULL)
-    outLT=jd2date(jd+UTCdiff/24)
-    newdatetime=jd2date(jd)
-    outLST=lst(date2jd(newdatetime$year,newdatetime$mon,newdatetime$mday,0), newdatetime$hour, lambda=Lon)
-    outLTPOSIX=ISOdatetime(outLT$year, outLT$mon, outLT$mday, as.numeric(deg2hms(outLT$hour*15)[1]), as.numeric(deg2hms(outLT$hour*15)[2]), as.numeric(deg2hms(outLT$hour*15)[3]))
-    outTemp=data.frame(JD=startjd+i, LST=outLST[1], LT=outLT, LTPOSIX=outLTPOSIX, Alt=Tempout$alt, Az=Tempout$az, HA=Tempout$ha, AirMass=airmass(Tempout$alt), AltMoon=Tempoutmoon$alt, AzMoon=Tempoutmoon$az, HAMoon=Tempoutmoon$ha, AirMassMoon=airmass(Tempoutmoon$alt), AltSun=Tempoutsun$alt, AzSun=Tempoutsun$az, HASun=Tempoutsun$ha, AirMassSun=airmass(Tempoutsun$alt))
-    r=as.POSIXct(round(range(outLTPOSIX, na.rm = TRUE), "hours"))
-    out=rbind(out,outTemp)
-  }
+  jdadd=seq(0,1,by=step/24)
+  Njd=length(jdadd)
+  jd=startjd+jdadd
+  sink("aux")
+  Tempout=suppressWarnings(eq2hor(rep(RAdeg,Njd), rep(Decdeg,Njd), jd, lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15))
+  Tempoutmoon=suppressWarnings(eq2hor(rep(moon$ra,Njd), rep(moon$dec,Njd), jd , lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15))
+  Tempoutsun=suppressWarnings(eq2hor(rep(sun$ra,Njd), rep(sun$dec,Njd), jd , lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15))
+  sink(NULL)
+  outLT=jd2date(jd+UTCdiff/24)
+  newdatetime=jd2date(jd)
+  outLST=rep(NA,Njd)
+  for(i in 1:Njd){outLST[i]=lst(date2jd(newdatetime$year[i],newdatetime$mon[i],newdatetime$mday[i],0), newdatetime$hour[i])}
+  outLTPOSIX=ISOdatetime(outLT$year, outLT$mon, outLT$mday, as.numeric(deg2hms(outLT$hour*15)[,1]), as.numeric(deg2hms(outLT$hour*15)[,2]), as.numeric(deg2hms(outLT$hour*15)[,3]))
+  out=data.frame(JD=jd, LST=as.numeric(outLST), LT=outLT, LTPOSIX=outLTPOSIX, Alt=Tempout$alt, Az=Tempout$az, HA=Tempout$ha, AirMass=airmass(Tempout$alt), AltMoon=Tempoutmoon$alt, AzMoon=Tempoutmoon$az, HAMoon=Tempoutmoon$ha, AirMassMoon=airmass(Tempoutmoon$alt), AltSun=Tempoutsun$alt, AzSun=Tempoutsun$az, HASun=Tempoutsun$ha, AirMassSun=airmass(Tempoutsun$alt))
+  
   N=dim(out)[1]
   r=as.POSIXct(round(range(out$LTPOSIX, na.rm=TRUE), "hours"))
   ataxis=seq(r[1], r[2], by = "hour")

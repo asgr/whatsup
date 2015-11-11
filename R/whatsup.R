@@ -316,6 +316,7 @@ plotyearup=function(obsdata){
   abline(v=obsdata$yearlines, lty=3, col='grey')
   abline(h=seq(0,24,by=3), lty=c(2,3), col='grey')
   lines(obsdata$obs$LTPOSIX, obsdata$obs$up60/6, col='red')
+  legend('topright',legend=c('Alt > 30 deg','Alt > 60 deg'),lty=1,col=c('blue','red'))
   axis.POSIXct(1, obsdata$at, obsdata$at, tcl=0.5, mgp=c(2,0.5,0))
   lims=par()$usr
   par(usr=c(lims[1:2],0,200))

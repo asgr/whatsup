@@ -241,7 +241,7 @@ plotdayupmulti=function(obsdata, ytype='Alt',moonphase=TRUE){
   }
   if(ytype=='AM'){
     magplot(obsdata[[1]]$obs$LTPOSIX, obsdata[[1]]$obs$AirMass, xaxt='n', type='l', ylim=c(3,1), xlab='', ylab='Air Mass', tcl=0.5, mgp=c(2,0.5,0),col='blue')
-    for(i in 2:length(obsdata)){lines(obsdata[[i]]$obs$LTPOSIX, obsdata[[i]]$obs$AirMass, col='blue')}
+    for(i in 2:(length(obsdata)-1)){lines(obsdata[[i]]$obs$LTPOSIX, obsdata[[i]]$obs$AirMass, col='blue')}
     lines(obsdata[[1]]$obs$LTPOSIX, obsdata[[1]]$obs$AirMassMoon, col=mooncol)
     lines(obsdata[[1]]$obs$LTPOSIX, obsdata[[1]]$obs$AirMassSun, col='orange')
     axis.POSIXct(1, obsdata[[1]]$at, obsdata[[1]]$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))

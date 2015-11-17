@@ -253,7 +253,7 @@ plotdayupmulti=function(obsdata, ytype='Alt',moonphase=TRUE){
     abline(h=airmass(c(-10,0,10,20,30,40,50,60,70,80,90)), lty=c(3,1,3,3,2,3,3,2,3,3,1), col='grey')
     for(i in 1:(length(obsdata)-1)){
       abline(v=obsdata[[i]]$obs$LTPOSIX[which.max(obsdata[[i]]$obs$Alt)], lty=3, col='blue')
-      text(obsdata[[i]]$obs$LTPOSIX[which.max(obsdata[[i]]$obs$Alt)], obsdata[[i]]$obs$AirMass[which.max(obsdata[[i]]$obs$Alt)],obsdata$names)
+      text(obsdata[[i]]$obs$LTPOSIX[which.max(obsdata[[i]]$obs$Alt)], obsdata[[i]]$obs$AirMass[which.max(obsdata[[i]]$obs$Alt)],obsdata$names[i])
     }
   }
   

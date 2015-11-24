@@ -14,11 +14,42 @@ gettarget=function(name){
   targets = NULL
   data('targets',envir = environment())
   allownames=tolower(targets$Name)
-  if(tolower(name) %in% allownames==FALSE){stop('Provided target name is not allowed.')}
-  out=targets[allownames==tolower(name),]
-  names(out)=colnames(targets)
-  out=as.vector(out)
+  if(tolower(name) %in% allownames==FALSE){
+    name=gsub(' ','+',name)
+    out=as.vector(nameresolve(name))
+    if(is.na(out['RA'])){
+      out=as.vector(data.frame(Name=name, RA="0:0:0", Dec="0:0:0", RAdeg=0, Decdeg=0, Type='R'))
+      cat('Provided target name is not allowed!\n\n')
+    }
+  }else{
+    out=targets[allownames==tolower(name),]
+    names(out)=colnames(targets)
+    out=as.vector(out)
+  }
   return(out)
+}
+
+nameresolve=function(name="M31"){
+  RAdeg=rep(NA,length(name))
+  Decdeg=rep(NA,length(name))
+  RAhms=rep(NA,length(name))
+  Decdms=rep(NA,length(name))
+  for(i in 1:length(name)){
+    temp=GET("http://cdsweb.u-strasbg.fr/cgi-bin/nph-sesame/-oxp/~SNV",query=name[i])
+    temp2=xmlTreeParse(as.character(temp))
+    check=length(grep('Nothing',unlist(temp2)))
+    check2=length(grep('Multiple',unlist(temp2)))
+    if(check==1 | check2==1){
+      RAdeg[i]=NA
+      Decdeg[i]=NA
+    }else{
+      RAdeg[i]=as.numeric(as.character(temp2$doc$children$Sesame[[1]][[3]][[6]][1][[1]])[6])
+      Decdeg[i]=as.numeric(as.character(temp2$doc$children$Sesame[[1]][[3]][[7]][1][[1]])[6])
+      RAhms[i]=deg2hms(RAdeg[i], type='cat')
+      Decdms[i]=deg2dms(Decdeg[i], type='cat')
+    }
+  }
+  return(data.frame(Name=name, RA=RAhms, Dec=Decdms, RAdeg=RAdeg, Decdeg=Decdeg, Type='R'))
 }
 
 airmass=function(Alt=30){

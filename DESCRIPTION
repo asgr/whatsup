@@ -8,4 +8,4 @@ Maintainer: Aaron Robotham <aaron.robotham@uwa.edu.au>
 Description: Produces observability plots for arbitrary locations, dates and times.
 License: GPL-3
 LazyData: TRUE
-Depends: R (>= 3.00), astrolibR, moonsun, magicaxis, celestial
+Depends: R (>= 3.00), astrolibR, moonsun, magicaxis, celestial, XML, httr

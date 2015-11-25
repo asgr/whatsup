@@ -44,8 +44,8 @@ nameresolve=function(name="M31"){
       RAdeg[i]=NA
       Decdeg[i]=NA
     }else{
-      RAdeg[i]=as.numeric(as.character(temp2$doc$children$Sesame[[1]][[3]][[6]][1][[1]])[6])
-      Decdeg[i]=as.numeric(as.character(temp2$doc$children$Sesame[[1]][[3]][[7]][1][[1]])[6])
+      RAdeg[i]=as.numeric(xmlValue(temp2$doc$children$Sesame[['Target']][['Resolver']][['jradeg']]))
+      Decdeg[i]=as.numeric(xmlValue(temp2$doc$children$Sesame[['Target']][['Resolver']][['jdedeg']]))
       RAhms[i]=deg2hms(RAdeg[i], type='cat')
       Decdms[i]=deg2dms(Decdeg[i], type='cat')
     }
@@ -167,12 +167,12 @@ dayup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time=c
   return=out
 }
 
-dayupmulti=function(Targets=cbind(names=c('G02', 'G09', 'G12', 'G15', 'G23'), RA=c("02:00:00", "09:00:00", "12:00:00", "14:30:00", "23:00:00"), Dec=c("-05:00:00", "01:00:00", "-01:00:00", "01:00:00", "-32:30:00")),...){
+dayupmulti=function(Targets=cbind(Names=c('G02', 'G09', 'G12', 'G15', 'G23'), RA=c("02:00:00", "09:00:00", "12:00:00", "14:30:00", "23:00:00"), Dec=c("-05:00:00", "01:00:00", "-01:00:00", "01:00:00", "-32:30:00")),...){
   out=list()
   for(i in 1:length(Targets[,1])){
-    out=c(out,list(dayup(RA=Targets[i,"RA"], Dec=Targets[i,"Dec"],...)))
+    out=c(out,list(dayup(RA=Targets[i,tolower(colnames(Targets))=='ra'], Dec=Targets[i,tolower(colnames(Targets))=='dec'],...)))
   }
-  out=c(out,list(names=Targets[,'names']))
+  out=c(out,list(names=Targets[,tolower(colnames(Targets))=='names']))
   class(out)="dayupmulti"
   return=out
 }
@@ -187,7 +187,7 @@ plot.dayupmulti=function(x,...){
   plotdayupmulti(x,...)
 }
 
-plotdayup=function(obsdata, ytype='Alt',moonphase=TRUE){
+plotdayup=function(obsdata, ytype='Alt',moonphase=TRUE,Name=''){
   layout(rbind(1,2))
   par(mar=c(0,0,0,0))
   par(oma=c(3.1,3.1,3.1,2.1))
@@ -203,6 +203,7 @@ plotdayup=function(obsdata, ytype='Alt',moonphase=TRUE){
     abline(v=obsdata$set, lty=2, col='orange')
     abline(v=obsdata$obs$LTPOSIX[which.max(obsdata$obs$Alt)], lty=3, col='blue')
     abline(h=c(-10,0,10,20,30,40,50,60,70,80,90), lty=c(3,1,3,3,2,3,3,2,3,3,1), col='grey')
+    text(obsdata$obs$LTPOSIX[which.max(obsdata$obs$Alt)], obsdata$obs$Alt[which.max(obsdata$obs$Alt)],Name)
   }
   if(ytype=='AM'){
     magplot(obsdata$obs$LTPOSIX, obsdata$obs$AirMass, xaxt='n', type='l', ylim=c(3,1), xlab='', ylab='Air Mass', tcl=0.5, mgp=c(2,0.5,0),col='blue')
@@ -215,6 +216,7 @@ plotdayup=function(obsdata, ytype='Alt',moonphase=TRUE){
     abline(v=obsdata$set, lty=2, col='orange')
     abline(v=obsdata$obs$LTPOSIX[which.max(obsdata$obs$Alt)], lty=3, col='blue')
     abline(h=airmass(c(-10,0,10,20,30,40,50,60,70,80,90)), lty=c(3,1,3,3,2,3,3,2,3,3,1), col='grey')
+    text(obsdata$obs$LTPOSIX[which.max(obsdata$obs$Alt)], obsdata$obs$AirMass[which.max(obsdata$obs$Alt)],Name)
   }
 
   title(main=paste('Y', obsdata$obs$LT.year[1], 'M', obsdata$obs$LT.mon[1], 'D', obsdata$obs$LT.mday[1], ', RA ', round(obsdata$RAdeg),', Dec ', round(obsdata$Decdeg), ', Lon ', round(obsdata$Lon), ', Lat ', round(obsdata$Lat),', Mphase ',round(obsdata$moonphase,2),', Msep ', round(obsdata$moonsep), ', Ssep ', round(obsdata$sunsep),sep=''), outer=TRUE)
@@ -250,7 +252,7 @@ plotdayup=function(obsdata, ytype='Alt',moonphase=TRUE){
 
 }
 
-plotdayupmulti=function(obsdata, ytype='Alt',moonphase=TRUE){
+plotdayupmulti=function(obsdata, ytype='Alt',moonphase=TRUE,Names){
   layout(rbind(1,2))
   par(mar=c(0,0,0,0))
   par(oma=c(3.1,3.1,3.1,2.1))

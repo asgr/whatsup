@@ -38,9 +38,10 @@ nameresolve=function(name="M31"){
     temp=GET("http://cdsweb.u-strasbg.fr/cgi-bin/nph-sesame/-oxp/~SNV",query=name[i])
     temp2=xmlTreeParse(as.character(temp))
     check=length(grep('Nothing',unlist(temp2)))
-    check2=length(grep('Multiple',unlist(temp2)))
-    check3=length(grep('refused',unlist(temp2)))
-    if(check==1 | check2==1 | check3){
+    check2=length(grep('refused',unlist(temp2)))
+    check3=length(grep('Multiple',unlist(temp2)))
+    if(check3>0){cat('Ambiguous name, using first returned from Seaseme!\n\n')}
+    if(check>0 | check2>0){
       RAdeg[i]=NA
       Decdeg[i]=NA
     }else{

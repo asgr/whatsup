@@ -39,7 +39,8 @@ nameresolve=function(name="M31"){
     temp2=xmlTreeParse(as.character(temp))
     check=length(grep('Nothing',unlist(temp2)))
     check2=length(grep('Multiple',unlist(temp2)))
-    if(check==1 | check2==1){
+    check3=length(grep('refused',unlist(temp2)))
+    if(check==1 | check2==1 | check3){
       RAdeg[i]=NA
       Decdeg[i]=NA
     }else{
@@ -331,7 +332,7 @@ plotdayupmulti=function(obsdata, ytype='Alt',moonphase=TRUE){
   
 }
 
-nowup=function(Ncut=20, Azlim=c(0,360), Altlim=c(60,90), Date='get', Time='get', Lon=115.8178, Lat=-31.97333, Loc='user', UTCdiff='get', Altitude=10, Pressure=1000, Temp=20, select=c('G','S')){
+nowup=function(Ncut=20, Azlim=c(0,360), Altlim=c(60,90), Date='get', Time='get', Lon=115.8178, Lat=-31.97333, Loc='user', UTCdiff='get', Altitude=10, Pressure=1000, Temp=20, select=c('G','S','C')){
   if(Loc != 'user'){
     obs=gettelescope(Loc)
     Lon=as.numeric(obs[1,'Lon'])

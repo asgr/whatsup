@@ -94,8 +94,9 @@ jd2date=function(JD=2440000){
 dayup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time=c(12,0,0), Lon=115.8178, Lat=-31.97333, Loc='user', UTCdiff='get', Altitude=10, Pressure=1000, Temp=20, step=0.1){
   #no change
   if(Target != 'user'){
-    RA=as.character(gettarget(Target)[1,2])
-    Dec=as.character(gettarget(Target)[1,3])
+    temp=gettarget(Target)
+    RA=as.character(temp[1,'RA'])
+    Dec=as.character(temp[1,'Dec'])
   }
   if(Loc != 'user'){
     obs=gettelescope(Loc)
@@ -379,6 +380,69 @@ nowup=function(Ncut=20, Azlim=c(0,360), Altlim=c(60,90), Date='get', Time='get',
   N=dim(cutcat)[1]
   if(N>Ncut){cutcat=cutcat[1:Ncut,]}
   return(cutcat)
+}
+
+nowwhere=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time='get', Lon=115.8178, Lat=-31.97333, Loc='user', UTCdiff='get', Altitude=10, Pressure=1000, Temp=20, Name='Target'){
+  if(Target != 'user'){
+    temp=gettarget(Target)
+    RA=as.character(temp[1,'RA'])
+    Dec=as.character(temp[1,'Dec'])
+  }
+  if(Loc != 'user'){
+    obs=gettelescope(Loc)
+    Lon=as.numeric(obs[1,'Lon'])
+    Lat=as.numeric(obs[1,'Lat'])
+    Altitude=as.numeric(obs[1,'Height'])
+  }
+  if(UTCdiff=='get'){UTCdiff=(lt()[1]-gmt()[1])}
+  if(UTCdiff=='guess'){UTCdiff=round(Lon/15)}
+  RAdeg=hms2deg(RA)
+  Decdeg=dms2deg(Dec)
+  options(longitude=Lon, latitude=Lat)
+  if(Date[1]=='get'){
+    datetime=as.POSIXlt(Sys.time())
+    year=datetime$year+1900
+    mon=datetime$mon+1
+    mday=datetime$mday
+  }else{
+    year=Date[1]
+    mon=Date[2]
+    mday=Date[3]
+  }
+  if(Time[1]=='get'){
+    datetime=as.POSIXlt(Sys.time())
+    hour=datetime$hour
+    min=datetime$min
+    sec=datetime$sec
+  }else{
+    hour=Time[1]
+    min=Time[2]
+    sec=Time[3]
+  }
+  
+  exactjd=date2jd(year, mon, mday, hour=hour+min/60+sec/3600)-UTCdiff/24
+  exactlst=lst(date2jd(year,mon,mday,0), hour+min/60+sec/3600-UTCdiff, lambda=Lon)[1]
+  
+  moon=moonpos(exactlst)
+  sun=sunpos(exactlst)
+  moonsep=acos(sum(sph2car(RAdeg,Decdeg)*sph2car(moon$ra, moon$dec)))*180/pi
+  sunsep=acos(sum(sph2car(RAdeg,Decdeg)*sph2car(sun$ra, sun$dec)))*180/pi
+  moonphase=mphase(exactlst)
+  sink("aux")
+  targetobs=suppressWarnings(eq2hor(RAdeg, Decdeg, exactjd, lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15))
+  moonobs=suppressWarnings(eq2hor(moon$ra, moon$dec, exactjd, lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15))
+  sunobs=suppressWarnings(eq2hor(sun$ra, sun$dec, exactjd, lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15))
+  sink(NULL)
+  out=data.frame(
+    Name=c(Name, 'Sun', 'Moon'),
+    Alt=c(targetobs$alt, sunobs$alt, moonobs$alt),
+    AirMass=airmass(c(targetobs$alt, sunobs$alt, moonobs$alt)),
+    Az=c(targetobs$az, sunobs$az, moonobs$az),
+    HA=c(targetobs$ha, sunobs$ha, moonobs$ha),
+    Sep=c(0, moonsep, sunsep),
+    Phase=c(1, moonphase, 1)
+  )
+  return(list(obs=out, JD=exactjd, LST=exactlst, LT.year=year, LT.mon=mon, LT.mday=mday, LT.hour=hour+min/60+sec/3600, UTCdiff=UTCdiff, Lon=Lon, Lat=Lat, Altitude=Altitude, Pressure=Pressure, Temp=Temp))
 }
 
 yearup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Lon=115.8178, Lat=-31.97333, Loc='user', UTCdiff='get', Altitude=10, Pressure=1000, Temp=20, select=c('G','S')){

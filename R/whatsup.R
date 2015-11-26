@@ -435,10 +435,12 @@ nowwhere=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Tim
   sink(NULL)
   out=data.frame(
     Name=c(Name, 'Sun', 'Moon'),
+    RA=deg2hms(c(RAdeg, sun$ra, moon$ra), type='cat'),
+    Dec=deg2dms(c(Decdeg, sun$dec, moon$dec), type='cat'),
     Alt=c(targetobs$alt, sunobs$alt, moonobs$alt),
     AirMass=airmass(c(targetobs$alt, sunobs$alt, moonobs$alt)),
     Az=c(targetobs$az, sunobs$az, moonobs$az),
-    HA=c(targetobs$ha, sunobs$ha, moonobs$ha),
+    HA=c(targetobs$ha, sunobs$ha, moonobs$ha)/15,
     Sep=c(0, moonsep, sunsep),
     Phase=c(1, moonphase, 1)
   )

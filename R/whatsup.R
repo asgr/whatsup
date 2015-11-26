@@ -15,7 +15,7 @@ gettarget=function(name){
   data('targets',envir = environment())
   allownames=tolower(targets$Name)
   if(tolower(name) %in% allownames==FALSE){
-    name=gsub(' ','+',name)
+    name=gsub(' ','_',name)
     out=as.vector(nameresolve(name))
     if(is.na(out['RA'])){
       out=as.vector(data.frame(Name=name, RA="0:0:0", Dec="0:0:0", RAdeg=0, Decdeg=0, Type='R'))

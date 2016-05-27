@@ -1,3 +1,77 @@
+whatsupeuler=function (ai, bi, select, fk4 = F, radian = F) 
+{
+    twopi = 2 * pi
+    fourpi = 4 * pi
+    rad_to_deg = 180/pi
+    if (fk4) {
+        equinox = "(b1950)"
+        psi = c(0.57595865315, 4.9261918136, 0, 0, 0.11129056012, 
+            4.7005372834)
+        stheta = c(0.88781538514, -0.88781538514, 0.39788119938, 
+            -0.39788119938, 0.86766174755, -0.86766174755)
+        ctheta = c(0.46019978478, 0.46019978478, 0.9174369467, 
+            0.9174369467, 0.49715499774, 0.49715499774)
+        phi = c(4.9261918136, 0.57595865315, 0, 0, 4.7005372834, 
+            0.11129056012)
+    }
+    else {
+        equinox = "(j2000)"
+        psi = c(0.574770433, 4.9368292465, 0, 0, 0.11142137093, 
+            4.71279419371)
+        stheta = c(0.88998808748, -0.88998808748, 0.39777715593, 
+            -0.39777715593, 0.86766622025, -0.86766622025)
+        ctheta = c(0.45598377618, 0.45598377618, 0.91748206207, 
+            0.91748206207, 0.49714719172, 0.49714719172)
+        phi = c(4.9368292465, 0.574770433, 0, 0, 4.71279419371, 
+            0.11142137093)
+    }
+    i = select
+    if (radian) {
+        ao = ai - phi[i]
+        bo = bi
+    }
+    else {
+        ao = ai/rad_to_deg - phi[i]
+        bo = bi/rad_to_deg
+    }
+    sb = sin(bo)
+    cb = cos(bo)
+    cbsa = cb * sin(ao)
+    bo = -stheta[i] * cbsa + ctheta[i] * sb
+    tmp = bo
+    tmp[tmp > 1] = 1
+    bo = asin(tmp)
+    if (!radian) 
+        bo = bo * rad_to_deg
+    ao = atan2(ctheta[i] * cbsa + stheta[i] * sb, cb * cos(ao))
+    ao = ((ao + psi[i] + fourpi)%%twopi)
+    if (!radian) 
+        ao = ao * rad_to_deg
+    return(list(ao = ao, bo = bo))
+}
+
+getplanet=function(name='mars', JD=2440000){
+  name=tolower(name)
+  planID=which(c('mercury','venus','earth','mars','jupiter','saturn','uranus','neptune','pluto')==name)
+  tmp = helio(JD, planID, radian = TRUE)
+  rad = tmp$hrad
+  lon = tmp$hlong
+  lat = tmp$hlat
+  tmp = helio(JD, 3, radian = TRUE)
+  rade = as.numeric(tmp$hrad)
+  lone = as.numeric(tmp$hlong)
+  late = as.numeric(tmp$hlat)
+  x = rad * cos(lat) * cos(lon) - rade * cos(late) * cos(lone)
+  y = rad * cos(lat) * sin(lon) - rade * cos(late) * sin(lone)
+  z = rad * sin(lat) - rade * sin(late)
+  lambda = atan2(y, x) * 180/pi
+  beta = atan2(z, sqrt(x * x + y * y)) * 180/pi
+  tmp = whatsupeuler(lambda, beta, 4)
+  RAdeg=as.numeric(tmp$ao)
+  Decdeg=as.numeric(tmp$bo)
+  return(data.frame(Name=name, RA=deg2hms(RAdeg,type='cat'), Dec=deg2dms(Decdeg,type='cat'), RAdeg=RAdeg, Decdeg=Decdeg, Type='P'))
+}
+
 gettelescope=function(name){
   telescopes = NULL
   data('telescopes',envir = environment())
@@ -10,10 +84,10 @@ gettelescope=function(name){
   return(out)
 }
 
-gettarget=function(name){
+gettarget=function(name, JD=2440000){
   targets = NULL
   data('targets',envir = environment())
-  allownames=tolower(targets$Name)
+  allownames=c(tolower(targets$Name),c('mercury','venus','earth','mars','jupiter','saturn','uranus','neptune','pluto'))
   if(tolower(name) %in% allownames==FALSE){
     name=gsub(' ','_',name)
     out=as.vector(nameresolve(name))
@@ -22,9 +96,14 @@ gettarget=function(name){
       cat('Provided target name is not allowed!\n\n')
     }
   }else{
-    out=targets[allownames==tolower(name),]
-    names(out)=colnames(targets)
-    out=as.vector(out)
+    if(tolower(name) %in% c('mercury','venus','earth','mars','jupiter','saturn','uranus','neptune','pluto')){
+      out=getplanet(name,JD)
+      out=as.vector(out)
+    }else{
+      out=targets[allownames==tolower(name),]
+      names(out)=colnames(targets)
+      out=as.vector(out)
+    }
   }
   return(out)
 }
@@ -93,11 +172,7 @@ jd2date=function(JD=2440000){
 
 dayup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time=c(12,0,0), Lon=115.8178, Lat=-31.97333, Loc='user', UTCdiff='get', Altitude=10, Pressure=1000, Temp=20, step=0.1){
   #no change
-  if(Target != 'user'){
-    temp=gettarget(Target)
-    RA=as.character(temp[1,'RA'])
-    Dec=as.character(temp[1,'Dec'])
-  }
+  planets=c('mercury','venus','earth','mars','jupiter','saturn','uranus','neptune','pluto')
   if(Loc != 'user'){
     obs=gettelescope(Loc)
     Lon=as.numeric(obs[1,'Lon'])
@@ -106,8 +181,6 @@ dayup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time=c
   }
   if(UTCdiff=='get'){UTCdiff=(lt()[1]-gmt()[1])}
   if(UTCdiff=='guess'){UTCdiff=round(Lon/15)}
-  RAdeg=hms2deg(RA)
-  Decdeg=dms2deg(Dec)
   options(longitude=Lon, latitude=Lat)
   if(Date[1]=='get'){
     datetime=as.POSIXlt(Sys.time())
@@ -130,6 +203,16 @@ dayup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time=c
     sec=Time[3]
   }
   startjd=date2jd(year, mon, mday, hour=hour+min/60+sec/3600)-UTCdiff/24
+  if(Target != 'user'){
+    temp=gettarget(Target,startjd)
+    RA=as.character(temp[1,'RA'])
+    Dec=as.character(temp[1,'Dec'])
+    RAdeg=temp[1,'RAdeg']
+    Decdeg=temp[1,'Decdeg']
+  }else{
+    RAdeg=hms2deg(RA)
+    Decdeg=dms2deg(Dec)
+  }
   moon=moonpos(startjd)
   sun=sunpos(startjd)
   moonsep=acos(sum(sph2car(RAdeg,Decdeg)*sph2car(moon$ra, moon$dec)))*180/pi
@@ -383,11 +466,6 @@ nowup=function(Ncut=20, Azlim=c(0,360), Altlim=c(60,90), Date='get', Time='get',
 }
 
 nowwhere=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time='get', Lon=115.8178, Lat=-31.97333, Loc='user', UTCdiff='get', Altitude=10, Pressure=1000, Temp=20, Name='Auto'){
-  if(Target != 'user'){
-    temp=gettarget(Target)
-    RA=as.character(temp[1,'RA'])
-    Dec=as.character(temp[1,'Dec'])
-  }
   if(Loc != 'user'){
     obs=gettelescope(Loc)
     Lon=as.numeric(obs[1,'Lon'])
@@ -396,8 +474,7 @@ nowwhere=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Tim
   }
   if(UTCdiff=='get'){UTCdiff=(lt()[1]-gmt()[1])}
   if(UTCdiff=='guess'){UTCdiff=round(Lon/15)}
-  RAdeg=hms2deg(RA)
-  Decdeg=dms2deg(Dec)
+
   options(longitude=Lon, latitude=Lat)
   if(Date[1]=='get'){
     datetime=as.POSIXlt(Sys.time())
@@ -422,6 +499,14 @@ nowwhere=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Tim
   
   exactjd=date2jd(year, mon, mday, hour=hour+min/60+sec/3600)-UTCdiff/24
   exactlst=lst(date2jd(year,mon,mday,0), hour+min/60+sec/3600-UTCdiff, lambda=Lon)[1]
+  
+  if(Target != 'user'){
+    temp=gettarget(Target,exactjd)
+    RA=as.character(temp[1,'RA'])
+    Dec=as.character(temp[1,'Dec'])
+  }
+  RAdeg=hms2deg(RA)
+  Decdeg=dms2deg(Dec)
   
   moon=moonpos(exactlst)
   sun=sunpos(exactlst)
@@ -470,8 +555,6 @@ yearup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Lon=1
   }
   if(UTCdiff=='get'){UTCdiff=(lt()[1]-gmt()[1])}
   if(UTCdiff=='guess'){UTCdiff=round(Lon/15)}
-  RAdeg=hms2deg(RA)
-  Decdeg=dms2deg(Dec)
   options(longitude=Lon, latitude=Lat)
   data('targets',envir = environment())
   if(Date[1]=='get'){
@@ -485,6 +568,13 @@ yearup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Lon=1
     mday=1
   }
   startjd=date2jd(year, mon, mday, hour=12)
+  if(Target != 'user'){
+    temp=gettarget(Target,startjd)
+    RA=as.character(temp[1,'RA'])
+    Dec=as.character(temp[1,'Dec'])
+  }
+  RAdeg=hms2deg(RA)
+  Decdeg=dms2deg(Dec)
   jd=floor(startjd)+seq(0,365,by=5)
   uptime30={}
   uptime60={}

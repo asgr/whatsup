@@ -241,7 +241,7 @@ dayup=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Time=c
   LSTdiff=(gst(out$JD[floor(N/2)],0)[1]+Lon/15-UTCdiff) %% 24
   Tempsun1=sun.rst(jday = floor(out$JD[1]), phi = Lat)
   Tempsun2=sun.rst(jday = floor(out$JD[N]), phi = Lat)
-  if(any(Tempoutsun$alt<0)){
+  if(!(all(Tempoutsun$alt<0) | all(Tempoutsun$alt>0))){
   rise1=(as.numeric(deg2hms((Tempsun1[[1]][1]*15-LSTdiff*15) %% 360)))
   rise2=(as.numeric(deg2hms((Tempsun2[[1]][1]*15-LSTdiff*15) %% 360)))
   set1=(as.numeric(deg2hms((Tempsun1[[3]][1]*15-LSTdiff*15) %% 360)))

@@ -513,15 +513,15 @@ nowwhere=function(RA="12:30:16", Dec="-30:13:15", Target='user', Date='get', Tim
   RAdeg=hms2deg(RA)
   Decdeg=dms2deg(Dec)
   
-  moon=moonpos(exactlst)
-  sun=sunpos(exactlst)
+  moon=moonpos(exactjd)
+  sun=sunpos(exactjd)
   moonsep={}
   sunsep={}
   for(i in 1:length(RAdeg)){
     moonsep=c(moonsep,acos(sum(sph2car(RAdeg[i],Decdeg[i])*sph2car(moon$ra, moon$dec)))*180/pi)
     sunsep=c(sunsep,acos(sum(sph2car(RAdeg[i],Decdeg[i])*sph2car(sun$ra, sun$dec)))*180/pi)
   }
-  moonphase=mphase(exactlst)
+  moonphase=mphase(exactjd)
   sink("aux")
   targetobs=suppressWarnings(eq2hor(RAdeg, Decdeg, rep(exactjd,length(RAdeg)), lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15))
   moonobs=suppressWarnings(eq2hor(moon$ra, moon$dec, exactjd, lat=Lat, lon=Lon, altitude=Altitude, pres=Pressure, temp=Temp+273.15))

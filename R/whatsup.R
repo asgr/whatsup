@@ -109,13 +109,19 @@ gettarget=function(name, JD=2440000){
 }
 
 nameresolve=function(name="M31"){
+  if(!requireNamespace("XML", quietly = TRUE)){
+    stop('The XML package is needed for this function to work. Please install it from CRAN.', call. = FALSE)
+  }
+  if(!requireNamespace("httr", quietly = TRUE)){
+    stop('The httr package is needed for this function to work. Please install it from CRAN.', call. = FALSE)
+  }
   RAdeg=rep(NA,length(name))
   Decdeg=rep(NA,length(name))
   RAhms=rep(NA,length(name))
   Decdms=rep(NA,length(name))
   for(i in 1:length(name)){
-    temp=GET("http://cdsweb.u-strasbg.fr/cgi-bin/nph-sesame/-oxp/~SNV",query=name[i])
-    temp2=xmlTreeParse(as.character(temp))
+    temp=httr::GET("http://cdsweb.u-strasbg.fr/cgi-bin/nph-sesame/-oxp/~SNV",query=name[i])
+    temp2=XML::xmlTreeParse(as.character(temp))
     check=length(grep('Nothing',unlist(temp2)))
     check2=length(grep('refused',unlist(temp2)))
     check3=length(grep('Multiple',unlist(temp2)))
@@ -124,8 +130,8 @@ nameresolve=function(name="M31"){
       RAdeg[i]=NA
       Decdeg[i]=NA
     }else{
-      RAdeg[i]=as.numeric(xmlValue(temp2$doc$children$Sesame[['Target']][['Resolver']][['jradeg']]))
-      Decdeg[i]=as.numeric(xmlValue(temp2$doc$children$Sesame[['Target']][['Resolver']][['jdedeg']]))
+      RAdeg[i]=as.numeric(XML::xmlValue(temp2$doc$children$Sesame[['Target']][['Resolver']][['jradeg']]))
+      Decdeg[i]=as.numeric(XML::xmlValue(temp2$doc$children$Sesame[['Target']][['Resolver']][['jdedeg']]))
       RAhms[i]=deg2hms(RAdeg[i], type='cat')
       Decdms[i]=deg2dms(Decdeg[i], type='cat')
     }

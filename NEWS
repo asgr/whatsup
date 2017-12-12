@@ -5,3 +5,5 @@ http://www.narrabri.atnf.csiro.au/calibrators/calibrator_database_search.html?ra
 Took re-formatted GMRT calibrators from:
 
 http://gmrt.ncra.tifr.res.in/~astrosupp/obs_setup/source.list
+
+Removed explicit XML and httr dependencies. Only required for running nameresolve function, so states dependency there when run.

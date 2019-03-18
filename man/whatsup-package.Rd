@@ -12,8 +12,8 @@ Produces observability plots for arbitrary locations, dates and times.
 \tabular{ll}{
 Package: \tab whatsup\cr
 Type: \tab Package\cr
-Version: \tab 0.1\cr
-Date: \tab 2015-10-27\cr
+Version: \tab 0.1.1\cr
+Date: \tab 2019-03-18\cr
 License: \tab GPL-3\cr
 }
 }

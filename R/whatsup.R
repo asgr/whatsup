@@ -125,7 +125,7 @@ nameresolve=function(name="M31"){
     check=length(grep('Nothing',unlist(temp2)))
     check2=length(grep('refused',unlist(temp2)))
     check3=length(grep('Multiple',unlist(temp2)))
-    if(check3>0){cat('Ambiguous name, using first returned from Seaseme!\n\n')}
+    if(check3>0){cat('Ambiguous name, using first returned from Sesame!\n\n')}
     if(check>0 | check2>0){
       RAdeg[i]=NA
       Decdeg[i]=NA

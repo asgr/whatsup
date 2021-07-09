@@ -3,3 +3,7 @@ import("astrolibR")
 import("moonsun")
 import("magicaxis")
 import("celestial")
+
+S3method("plot", dayup)
+S3method("plot", dayupmulti)
+S3method("plot", yearup)

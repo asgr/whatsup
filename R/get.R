@@ -22,31 +22,40 @@ getplanet=function(name='mars', JD=2440000){
 
 gettelescope=function(name){
   telescopes = NULL
-  data('telescopes',envir = environment())
-  telescopes$Name=as.character(telescopes$Name)
-  allownames=tolower(telescopes$Name)
-  if(tolower(name) %in% allownames==FALSE){stop(paste('Provided telescope name is not allowed, must be one of',paste(telescopes$Name,sep='',collapse=', '),' (case insensitive). See ?telescopes for details.'))}
-  out=telescopes[allownames==tolower(name),]
-  names(out)=colnames(telescopes)
-  out=as.vector(out)
-  return(out)
+  data('telescopes', envir = environment())
+  telescopes$Name = as.character(telescopes$Name)
+  allownames = tolower(telescopes$Name)
+  if(all(tolower(name) %in% allownames) == FALSE){stop(paste('Provided telescope name is not allowed, must be one of',paste(telescopes$Name,sep='',collapse=', '),' (case insensitive). See ?telescopes for details.'))}
+  #out=telescopes[allownames==tolower(name),]
+  #names(out)=colnames(telescopes)
+  #out=as.vector(out)
+  return(telescopes[allownames %in% tolower(name),])
 }
 
 gettarget=function(name, JD=2440000){
   targets = NULL
   data('targets',envir = environment())
-  allownames=c(tolower(targets$Name),c('mercury','venus','earth','mars','jupiter','saturn','uranus','neptune','pluto'))
+  allownames=c(tolower(targets$Name),
+               c('mercury','venus','earth','mars','jupiter','saturn','uranus','neptune','pluto'),
+               'moon',
+               'sun'
+               )
   if(tolower(name) %in% allownames==FALSE){
     name=gsub(' ','_',name)
-    out=as.vector(nameresolve(name))
+    out = nameresolve(name)
     if(is.na(out['RA'])){
-      out=as.vector(data.frame(Name=name, RA="0:0:0", Dec="0:0:0", RAdeg=0, Decdeg=0, Type='R'))
+      out = data.frame(Name=name, RA="0:0:0", Dec="0:0:0", RAdeg=0, Decdeg=0, Type='R')
       cat('Provided target name is not allowed!\n\n')
     }
   }else{
     if(tolower(name) %in% c('mercury','venus','earth','mars','jupiter','saturn','uranus','neptune','pluto')){
-      out=getplanet(name,JD)
-      out=as.vector(out)
+      out = getplanet(name,JD)
+    }else if(tolower(name) == 'moon'){
+      out = moonpos(JD)
+      out = data.frame(Name=name, RA=deg2hms(out$ra, type='cat'), Dec=deg2dms(out$dec, type='cat'), RAdeg=out$ra, Decdeg=out$dec, Type='M')
+    }else if(tolower(name) == 'sun'){
+      out = sunpos(JD)
+      out = data.frame(Name=name, RA=deg2hms(out$ra, type='cat'), Dec=deg2dms(out$dec, type='cat'), RAdeg=out$ra, Decdeg=out$dec, Type='S')
     }else{
       out=targets[allownames==tolower(name),]
       names(out)=colnames(targets)

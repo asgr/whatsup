@@ -8,7 +8,7 @@ using Euler angle rotation matrices.  This is used internally by
 equatorial (RA/Dec) coordinates, but is available for direct use.
 }
 \usage{
-whatsupeuler(ai, bi, select, fk4 = FALSE, radian = FALSE)
+whatsupeuler(ai, bi, select, fk4 = F, radian = F)
 }
 \arguments{
   \item{ai}{Numeric vector of input longitudes (or Right Ascensions) in
@@ -45,8 +45,8 @@ A named list with two elements:
 }
 \examples{
 # Convert J2000 ecliptic longitude/latitude to equatorial RA/Dec
-# select = 4: ecliptic -> equatorial (FK4 sign convention requires
-#              using select=4 with fk4=FALSE for J2000 ecliptic)
+# Here select = 4 performs an ecliptic -> equatorial transformation;
+# with fk4 = FALSE (the default) this uses the FK5 J2000 constants
 ecl_lon <- 120   # degrees
 ecl_lat <-  30   # degrees
 result <- whatsupeuler(ecl_lon, ecl_lat, select = 4)

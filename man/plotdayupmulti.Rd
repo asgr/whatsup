@@ -22,8 +22,9 @@ plotdayupmulti(obsdata, ytype = 'Alt', moonphase = TRUE, Names)
     or \code{'AM'} (air mass).}
   \item{moonphase}{Logical.  If \code{TRUE} (the default) the Moon
     track is coloured according to its phase.}
-  \item{Names}{Character vector of target labels (one per target).  If
-    absent, uses the names stored in \code{obsdata$names}.}
+  \item{Names}{(Currently ignored.) Target labels are always taken from
+    \code{obsdata$names}. This argument is retained for backward
+    compatibility only.}
   \item{\dots}{Additional arguments passed to \code{plotdayupmulti} (for
     the S3 \code{plot} method).}
 }

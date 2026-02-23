@@ -24,7 +24,7 @@ gettarget(name, JD = 2440000)
     targets (planets, Moon, Sun).}
 }
 \value{
-A data frame (or list-like object) with columns:
+A data frame with columns:
 \describe{
   \item{Name}{Target name.}
   \item{RA}{Right Ascension in \code{"HH:MM:SS"} format.}

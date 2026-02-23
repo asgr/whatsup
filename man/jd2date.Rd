@@ -17,7 +17,7 @@ A named list with four numeric vector components:
   \item{year}{Four-digit year.}
   \item{mon}{Month (1 = January, 12 = December).}
   \item{mday}{Day of the month.}
-  \item{hour}{Decimal hour (0–24) of the day in UT.}
+  \item{hour}{Decimal hour (0-24) of the day in UT.}
 }
 }
 \seealso{

@@ -4,7 +4,7 @@
 \description{
 Computes how many hours per night a target is above 30 or 60 degrees of
 altitude (during astronomical night) over a full year, sampled every
-5 days.  Also records moon phase and moon–target angular separation.
+5 days.  Also records moon phase and moon-target angular separation.
 Returns an object of class \code{yearup} suitable for plotting with
 \code{\link{plot.yearup}} / \code{\link{plotyearup}}.
 }
@@ -51,7 +51,7 @@ A list of class \code{yearup} with components:
     \code{jd} (Julian Date), \code{LTPOSIX} (POSIXct date), \code{up30}
     (number of 10-min intervals above 30 deg at night), \code{up60}
     (number of 10-min intervals above 60 deg at night), \code{moonsep}
-    (moon–target angular separation in degrees), and \code{moonphase}
+    (moon-target angular separation in degrees), and \code{moonphase}
     (fractional lunar illumination).}
   \item{at}{POSIXct sequence of monthly tick positions for the x-axis.}
   \item{startyear}{Integer: the starting calendar year.}

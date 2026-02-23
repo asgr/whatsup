@@ -15,7 +15,7 @@ date2jd(year = 1968, mon = 5, mday = 23, hour = 12)
     12 = December).}
   \item{mday}{Integer (or numeric vector) giving the day of the month.}
   \item{hour}{Numeric (or numeric vector) giving the time as a decimal
-    hour (0–24).  Defaults to noon (12).}
+    hour (0-24).  Defaults to noon (12).}
 }
 \value{
 Numeric vector of Julian Dates.

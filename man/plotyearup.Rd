@@ -5,7 +5,7 @@
 \description{
 Produces a two-panel plot showing (i) the number of hours per night the
 target is above 30 and 60 degrees altitude across a full year, and (ii)
-the moon–target angular separation and moon phase over the same period.
+the moon-target angular separation and moon phase over the same period.
 }
 \usage{
 plotyearup(obsdata)

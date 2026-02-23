@@ -3,6 +3,11 @@ import("astrolibR")
 import("moonsun")
 import("magicaxis")
 import("celestial")
+importFrom("grDevices", "hsv")
+importFrom("graphics", "abline", "axis", "axis.POSIXct", "layout",
+           "legend", "lines", "par", "points", "text", "title")
+importFrom("stats", "spline")
+importFrom("utils", "data")
 
 S3method("plot", dayup)
 S3method("plot", dayupmulti)

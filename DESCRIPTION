@@ -10,3 +10,5 @@ License: LGPL-3
 LazyData: TRUE
 Depends: R (>= 3.00), astrolibR, moonsun, magicaxis, celestial, httr
 Suggests: httr, XML
+Remotes: asgr/astrolibR, asgr/moonsun
+RoxygenNote: 7.3.2

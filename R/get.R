@@ -57,9 +57,8 @@ gettarget=function(name, JD=2440000){
       out = sunpos(JD)
       out = data.frame(Name=name, RA=deg2hms(out$ra, type='cat'), Dec=deg2dms(out$dec, type='cat'), RAdeg=out$ra, Decdeg=out$dec, Type='S')
     }else{
-      out=targets[allownames==tolower(name),]
-      names(out)=colnames(targets)
-      out=as.vector(out)
+      out = targets[allownames==tolower(name),]
+      names(out) = colnames(targets)
     }
   }
   return(out)

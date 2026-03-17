@@ -19,7 +19,7 @@ plotdayup=function(obsdata, ytype='Alt',moonphase=TRUE,Name=''){
   par(oma=c(3.1,3.1,3.1,2.1))
   if(moonphase){mooncol=hsv(h=0, s=0, v=1-obsdata$moonphase)}else{mooncol='darkgrey'}
   if(ytype=='Alt'){
-    magplot(obsdata$obs$LTPOSIX, obsdata$obs$Alt, xaxt='n', type='l', ylim=c(-10,90), xlab='', ylab='Alt / deg', tcl=0.5, mgp=c(2,0.5,0), col='blue', prettybase=30)
+    magplot(obsdata$obs$LTPOSIX, obsdata$obs$Alt, xaxt='n', type='l', xlim=range(obsdata$obs$LTPOSIX), ylim=c(-10,90), xlab='', ylab='Alt / deg', tcl=0.5, mgp=c(2,0.5,0), col='blue', prettybase=30)
     lines(obsdata$obs$LTPOSIX, obsdata$obs$AltMoon, col=mooncol)
     lines(obsdata$obs$LTPOSIX, obsdata$obs$AltSun, col='orange')
     axis.POSIXct(1, obsdata$at, obsdata$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))
@@ -32,7 +32,7 @@ plotdayup=function(obsdata, ytype='Alt',moonphase=TRUE,Name=''){
     text(obsdata$obs$LTPOSIX[which.max(obsdata$obs$Alt)], obsdata$obs$Alt[which.max(obsdata$obs$Alt)],Name)
   }
   if(ytype=='AM'){
-    magplot(obsdata$obs$LTPOSIX, obsdata$obs$AirMass, xaxt='n', type='l', ylim=c(3,1), xlab='', ylab='Air Mass', tcl=0.5, mgp=c(2,0.5,0),col='blue')
+    magplot(obsdata$obs$LTPOSIX, obsdata$obs$AirMass, xaxt='n', type='l', xlim=range(obsdata$obs$LTPOSIX), ylim=c(3,1), xlab='', ylab='Air Mass', tcl=0.5, mgp=c(2,0.5,0),col='blue')
     lines(obsdata$obs$LTPOSIX, obsdata$obs$AirMassMoon, col=mooncol)
     lines(obsdata$obs$LTPOSIX, obsdata$obs$AirMassSun, col='orange')
     axis.POSIXct(1, obsdata$at, obsdata$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))
@@ -62,7 +62,7 @@ plotdayup=function(obsdata, ytype='Alt',moonphase=TRUE,Name=''){
   ymoon[moonselect]=NA
   xsun[sunselect]=NA
   ysun[sunselect]=NA
-  magplot(xtarget, ytarget, xaxt='n', yaxt='n', type='l', xlab='Local Time / Hours', ylab='Az / deg', ylim=c(0,380), col='blue')
+  magplot(xtarget, ytarget, xaxt='n', yaxt='n', type='l', xlab='Local Time / Hours', ylab='Az / deg', xlim=range(obsdata$obs$LTPOSIX), ylim=c(0,380), col='blue')
   lines(xmoon, ymoon, col=mooncol)
   lines(xsun, ysun, col='orange')
   axis.POSIXct(1, obsdata$at, obsdata$at, format = '%H', tcl=0.5, mgp=c(2,0.5,0))
